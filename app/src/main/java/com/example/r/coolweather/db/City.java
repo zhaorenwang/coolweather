@@ -3,6 +3,7 @@ package com.example.r.coolweather.db;
 import org.litepal.crud.DataSupport;
 
 /**
+ * litepal会自动创建表和数据库，直接利用他的借口查询数据
  * Created by Administrator on 2017/12/14 0014.
  */
 

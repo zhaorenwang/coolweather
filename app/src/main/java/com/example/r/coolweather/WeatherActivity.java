@@ -66,13 +66,16 @@ public class WeatherActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_weather);
 
-        if (Build.VERSION.SDK_INT>=21){
+
+        if (Build.VERSION.SDK_INT>=21){//判断版本，之后再加载布局？不然会闪退？ setContentView(R.layout.activity_weather);
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN|View.SYSTEM_UI_FLAG_LAYOUT_STABLE);//表示活动布局会显示状态栏上面
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
+
+        setContentView(R.layout.activity_weather);
+
 
         //初始化控件
         bingPicImg=findViewById(R.id.bing_pic_img);
@@ -105,7 +108,7 @@ public class WeatherActivity extends AppCompatActivity {
         if (weatherString != null){
             //有缓存时直接解析天气数据
             Weather weather = Utility.handleWeatherResponse(weatherString);
-            weatherId=weather.basic.weatherid;
+            weatherId=weather.basic.weatherId;
             showWeatherInfo(weather);
         }else {
             //无缓存时去服务器查询天气
@@ -183,12 +186,9 @@ public class WeatherActivity extends AppCompatActivity {
 
     private void loadBingPic() {
 
-        String requestBingPic = "http://guolin.tech/api/bing_pic";//服务器接口？必应的？
+        String requestBingPic = "http://guolin.tech/api/bing_pic";//服务器接口？必应背景图链接，然后用glide去加载这张图片就行了
         HttpUtil.sendOkHttpRequest(requestBingPic, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
+
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
@@ -196,14 +196,20 @@ public class WeatherActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                 editor.putString("bing_pic",bingPic);
                 editor.apply();
-                runOnUiThread(new Runnable() {
+                runOnUiThread(new Runnable() {//先将图片链接缓存，之后 再启用主线程加载？
                     @Override
                     public void run() {// 多想想，这是一个服务器网址，里面的内容是必应的图网址？每天都换的么？
                         Glide.with(WeatherActivity.this).load(bingPic).into(bingPicImg);
                     }
                 });
             }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
         });
+
 
     }
 
@@ -232,7 +238,7 @@ public class WeatherActivity extends AppCompatActivity {
             String cityName = weather.basic.cityName;//weather是总的实体类，相当于集合管理封装，basic是其中一个实体类
 
             String updateTime = weather.basic.update.updateTime.split(" ")[1];
-            String degree = weather.now.tmperature+"℃";
+            String degree = weather.now.temperature+"℃";
             String weatherInfo = weather.now.more.info;
             titleCity.setText(cityName);
             titleUpdateTime.setText(updateTime);

@@ -15,7 +15,7 @@ import org.json.JSONObject;
 /**
  * Created by Administrator on 2017/12/14 0014.
  */
-//服务器返回的数据都是json格式的，所以注册这个工具类JSONObject来解析和处理这种数据
+//服务器返回的数据都是json格式的，所以注册这个工具类用JSONObject来解析和处理这种数据
 public class Utility {
     //解析和处理服务器返回的省级数据
     public static boolean handleProvinceResponse(String response){
@@ -26,7 +26,7 @@ public class Utility {
                     JSONObject provincesObject = allProvinces.getJSONObject(i);
                     Province province = new Province();
                     province.setProvinceName(provincesObject.getString("name"));
-                    province.setProvincrCode(provincesObject.getInt("id"));
+                    province.setProvinceCode(provincesObject.getInt("id"));
                     province.save();
                 }
                 return true;
@@ -90,14 +90,14 @@ public class Utility {
     }
 
     /**
-     * 将返回的JSON数据解析成Weather实体类
+     * 将返回的JSON数据解析成Weather实体类，数据比较简单就不用GSON进行解析了
      */
     public static Weather handleWeatherResponse(String response){
         try {
             JSONObject jsonObject = new JSONObject(response);
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
             String weatherContent = jsonArray.getJSONObject(0).toString();
-            return new Gson().fromJson(weatherContent,Weather.class);
+            return new Gson().fromJson(weatherContent,Weather.class);//fromJson,GSON方法，因为已经按照JSON数据个定义了一个Weather的GSON实体类
 
 
         } catch (JSONException e) {

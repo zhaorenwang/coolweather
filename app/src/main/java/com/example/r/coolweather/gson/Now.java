@@ -8,9 +8,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class Now {
     @SerializedName("tmp")//没有隐射的先建立映射关系再声明
-    public String tmperature;
+    public String temperature;
 
-    @SerializedName("cood")
+    @SerializedName("cond")
     public More more;
 
     public class More {

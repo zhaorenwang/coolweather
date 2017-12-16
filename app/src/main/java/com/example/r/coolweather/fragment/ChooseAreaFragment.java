@@ -46,7 +46,7 @@ public class ChooseAreaFragment extends Fragment {
     private TextView titleText;
     private Button backButton;
     private ListView listView;
-    private ArrayAdapter<String>adapter;
+    private ArrayAdapter<String> adapter;
     private List<String> dataList = new ArrayList<>();
 
     //省列表
@@ -69,10 +69,10 @@ public class ChooseAreaFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area, container, false);
-        titleText = (TextView) view.findViewById(R.id.title_text);
-        backButton=(Button)view.findViewById(R.id.back_button);
-        listView=(ListView)view.findViewById(R.id.list_view);
-        adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
+        titleText =  view.findViewById(R.id.title_text);
+        backButton=view.findViewById(R.id.back_button);
+        listView= view.findViewById(R.id.list_view);
+        adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);//适配器加载数据
         listView.setAdapter(adapter);
         return view;
     }
@@ -96,7 +96,7 @@ public class ChooseAreaFragment extends Fragment {
 
                         intent.putExtra("weather_id",weatherId);
                         startActivity(intent);
-                        getActivity().finish();
+                        getActivity().finish();// getActivity()是继承的方法
                     }else if (getActivity()instanceof WeatherActivity){//如果本身就在天气页面
                        WeatherActivity activity = (WeatherActivity) getActivity();
                        activity.drawerLayout.closeDrawers();
@@ -118,7 +118,7 @@ public class ChooseAreaFragment extends Fragment {
 
             }
         });
-        queryProvinces();
+        queryProvinces();//不论如何，在这里，数据库里一定有省级数据了
     }
 
     /**
@@ -127,7 +127,7 @@ public class ChooseAreaFragment extends Fragment {
     private void queryProvinces() {
         titleText.setText("中国");
         backButton.setVisibility(View.GONE);
-        provinceList= DataSupport.findAll(Province.class);
+        provinceList= DataSupport.findAll(Province.class);//DataSupport是LitePal自动创建的数据库
         if (provinceList.size()>0){
             dataList.clear();
             for (Province province:provinceList) {
@@ -150,7 +150,7 @@ public class ChooseAreaFragment extends Fragment {
     private void queryCities() {
         titleText.setText(selectedProvince.getProvinceName());
         backButton.setVisibility(View.VISIBLE);
-        cityList=DataSupport.where("privinceid=?",String.valueOf(selectedProvince.getId())).find(City.class);
+        cityList=DataSupport.where("provinceid=?",String.valueOf(selectedProvince.getId())).find(City.class);
         if (cityList.size()>0){//数据库中的大于零不为空
             dataList.clear();
             for (City city:cityList) {
@@ -160,8 +160,8 @@ public class ChooseAreaFragment extends Fragment {
             listView.setSelection(0);
             currentLevel=LEVEL_CITY;
         }else {
-            int procinceCode= selectedProvince.getProvinceCode();
-            String address = "http:/goulin.tech/api/china"+procinceCode;
+            int provinceCode= selectedProvince.getProvinceCode();
+            String address = "http:/goulin.tech/api/china"+provinceCode;
             queryFromServer(address,"city");
 
         }
@@ -170,11 +170,11 @@ public class ChooseAreaFragment extends Fragment {
     }
 
     private void queryCounties() {
-        titleText.setText(selectCity.getCityName());
+        titleText.setText(selectCity.getCityName());//这个selectCity对象就是监听事件获得的对象
         backButton.setVisibility(View.VISIBLE);
         countyList = DataSupport.where("cityid = ?",String.valueOf(selectCity.getId())).find(County.class);
         if (countyList.size()>0){
-            dataList.clear();
+            dataList.clear();//不是匿名的，是全局声明的变量类型，给遍历数据暂用储存而已
             for (County county: countyList) {
                 dataList.add(county.getCountyName());
             }
@@ -184,11 +184,9 @@ public class ChooseAreaFragment extends Fragment {
         }else {
             int provinceCode = selectedProvince.getProvinceCode();
             int cityCode = selectCity.getCityCode();
-            String adress = "http:/goulin.tech/api/china"+provinceCode+"/"+cityCode;
-            queryFromServer(adress,"county");
+            String adress = "http:/goulin.tech/api/china" + provinceCode + "/" + cityCode;//else就组装服务器地址向服务器查询
+            queryFromServer(adress, "city");
         }
-
-
     }
 
     /**
@@ -223,8 +221,8 @@ public class ChooseAreaFragment extends Fragment {
                 }else if ("county".equals(type)){
                     result =Utility.handleCountyResponse(responseText,selectCity.getId());
                 }
-                if (result){//接收上面的请求 处理返回的响应？
-                    getActivity().runOnUiThread(new Runnable() {
+                if (result){//接收上面判断过的result 处理返回的响应？
+                    getActivity().runOnUiThread(new Runnable() {//主线程，直接显示到页面上
                         @Override
                         public void run() {
                             closeProgressDialog();
